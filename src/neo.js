@@ -11,21 +11,93 @@ class NeoComponent extends React.Component {
         } 
         return oStr; 
       } 
-      
-      getTodayDate() {
-        const today = new Date()
+
+      paddingLeftZeros(datesubstring) {
+        return  "0" + datesubstring; 
+      }
+
+      format_date(year, month, day) {
+        return year + "-" + month + "-" + day
+      }
+      format_time(hour, minute, second) {
+        return hour + ":" + minute + ":" + second
+      }
+
+      getTodayUTCDate(today) {
         var dayUTC = today.getUTCDate().toString(); 
         var monthUTC = (today.getUTCMonth() + 1).toString(); 
         var yearUTC = today.getUTCFullYear().toString(); 
 
         if (dayUTC.length === 1) {
-            dayUTC = "0" + dayUTC;             
+            dayUTC = this.paddingLeftZeros(dayUTC);     
         }
         if (monthUTC.length === 1) {
-            monthUTC = "0" + monthUTC; 
+            monthUTC = this.paddingLeftZeros(monthUTC);
         }
 
-        return yearUTC + "-" + monthUTC + "-" + dayUTC        
+        return this.format_date(yearUTC, monthUTC, dayUTC);
+      }
+
+      getTodayUTCTime(today) {
+        var hourUTC = today.getUTCHours().toString();
+        var minUTC = today.getUTCMinutes().toString();
+        var secUTC = today.getUTCSeconds().toString();
+
+
+        if (hourUTC.length === 1) {
+            hourUTC = this.paddingLeftZeros(hourUTC);
+        }
+        if (minUTC.length === 1) {
+            minUTC = this.paddingLeftZeros(minUTC);
+        }
+        if(secUTC.length === 1) {
+            secUTC = this.paddingLeftZeros(secUTC);
+        }
+
+        return this.format_time(hourUTC, minUTC, secUTC);
+      }
+
+      getTodayUTCDateTime(today) {
+        return this.getTodayUTCDate (today) + " " + this.getTodayUTCTime(today); 
+      }
+
+
+      getTodayLocalDate(today) {
+        var dayLocal = today.getDate().toString();
+        var monthLocal = (today.getMonth() + 1).toString();
+        var yearLocal = today.getFullYear().toString();
+
+        if (dayLocal.length === 1) {
+            dayLocal = this.paddingLeftZeros(dayLocal);
+        }
+        if (monthLocal.length === 1) {
+            monthLocal = this.paddingLeftZeros(monthLocal);
+        }
+
+        return this.format_date(yearLocal, monthLocal, dayLocal);
+      }
+
+      getTodayLocalTime(today) {
+        var hourLocal = today.getHours().toString();
+        var minLocal = today.getMinutes().toString();
+        var secLocal = today.getSeconds().toString();
+
+        if(hourLocal.length === 1) {
+            hourLocal = this.paddingLeftZeros(hourLocal);
+        }
+        if (minLocal.length === 1) {
+            minLocal = this.paddingLeftZeros(minLocal);
+        }
+        if(secLocal.length === 1) {
+            secLocal = this.paddingLeftZeros(secLocal);
+        }
+
+        return this.format_time(hourLocal, minLocal, secLocal);
+
+      }
+
+      getTodayLocalDateTime(today) {
+        return this.getTodayLocalDate(today) + " " + this.getTodayLocalTime(today);
       }
 
 
@@ -38,7 +110,7 @@ class NeoComponent extends React.Component {
     constructor(props) {
         super(props);
         this.api_key = process.env.REACT_APP_NASA_API_KEY; 
-        this.start_date = this.getTodayDate();
+        this.start_date = this.getTodayUTCDate(new Date());
         this.end_date = this.start_date; 
         this.url = this.formatter("https://api.nasa.gov/neo/rest/v1/feed?start_date={0}&end_date={1}&api_key={2}", this.start_date, this.end_date, this.api_key);
 
@@ -53,16 +125,16 @@ class NeoComponent extends React.Component {
     }
 
     componentDidMount() {
-
         fetch(this.url)
         .then(res => res.json())
         .then(
             (result) => {
+                const todaydate = new Date(); 
                 this.setState({
                     isLoaded: true, 
-                    items: result.near_earth_objects['2022-06-19'], 
-                    currentLocalTime: new Date().toLocaleString(), 
-                    currentUTCTime: new Date().toUTCString()
+                    items: result.near_earth_objects[this.start_date], 
+                    currentLocalTime: this.getTodayLocalDateTime(todaydate), 
+                    currentUTCTime: this.getTodayUTCDateTime(todaydate)
                 });
             }, 
         (error) => {
