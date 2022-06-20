@@ -19,8 +19,8 @@ class NeoComponent extends React.Component {
       format_date(year, month, day) {
         return year + "-" + month + "-" + day
       }
-      format_time(hour, minute, second) {
-        return hour + ":" + minute + ":" + second
+      format_time(hour, minute) {
+        return hour + ":" + minute
       }
 
       getTodayUTCDate(today) {
@@ -41,7 +41,6 @@ class NeoComponent extends React.Component {
       getTodayUTCTime(today) {
         var hourUTC = today.getUTCHours().toString();
         var minUTC = today.getUTCMinutes().toString();
-        var secUTC = today.getUTCSeconds().toString();
 
 
         if (hourUTC.length === 1) {
@@ -50,11 +49,9 @@ class NeoComponent extends React.Component {
         if (minUTC.length === 1) {
             minUTC = this.paddingLeftZeros(minUTC);
         }
-        if(secUTC.length === 1) {
-            secUTC = this.paddingLeftZeros(secUTC);
-        }
 
-        return this.format_time(hourUTC, minUTC, secUTC);
+
+        return this.format_time(hourUTC, minUTC);
       }
 
       getTodayUTCDateTime(today) {
@@ -88,16 +85,50 @@ class NeoComponent extends React.Component {
         if (minLocal.length === 1) {
             minLocal = this.paddingLeftZeros(minLocal);
         }
-        if(secLocal.length === 1) {
-            secLocal = this.paddingLeftZeros(secLocal);
-        }
 
-        return this.format_time(hourLocal, minLocal, secLocal);
+
+        return this.format_time(hourLocal, minLocal);
 
       }
 
       getTodayLocalDateTime(today) {
         return this.getTodayLocalDate(today) + " " + this.getTodayLocalTime(today);
+      }
+      
+
+      parseDetectionDate(detectionDate, local) {
+        const months = {
+            Jan: 0,
+            Feb: 1,
+            Mar: 2,
+            Apr: 3,
+            May: 4,
+            Jun: 5,
+            Jul: 6,
+            Aug: 7,
+            Sep: 8,
+            Oct: 9,
+            Nov: 10,
+            Dec: 11,
+          }
+
+        let datetime = detectionDate.split(" ")
+        let date = datetime[0].split("-")
+        let year = date[0];
+        let month =months[date[1]];
+        let day = date[2];
+
+        let time = datetime[1].split(":");
+        let hour = time[0];
+        let min = time[1]; 
+        //alert(new Date(Date.UTC(year, month, day, hour, min) ) )
+        const parsed_date = new Date(Date.UTC(year, month, day, hour, min)); 
+        if (local === true) {
+            return this.getTodayLocalDateTime(parsed_date);
+        }
+        else {
+            return this.getTodayUTCDateTime(parsed_date); 
+        }
       }
 
 
@@ -168,30 +199,32 @@ class NeoComponent extends React.Component {
                             <td>Estimated diameter maximum (km)</td>
                             <td>Dangerous?</td>
                             <td>Date of detection (UTC)</td>
+                            <td>Local Date</td>
                             <td>How fast? (Km/s)</td>
                             <td>How far from us? (Km)</td>
                         </tr>
                     </thead>
                     <tbody>
-                    {items.map(item => (
+                    {
+                    items.map(item => (
                         <tr key={item.id}>
                             <td>{item.name}</td>
                             <td>{item.absolute_magnitude_h}</td>
                             <td>{item.estimated_diameter.kilometers.estimated_diameter_min} </td>
                             <td>{item.estimated_diameter.kilometers.estimated_diameter_max}</td>
                             <td>{item.is_potentially_hazardous_asteroid ? 'Yes': 'No'}</td>
-                            <td>{item.close_approach_data[0].close_approach_date_full}</td>
+                            <td>{this.parseDetectionDate(item.close_approach_data[0].close_approach_date_full, false)}</td>
+                            <td>{this.parseDetectionDate(item.close_approach_data[0].close_approach_date_full, true)}</td>
                             <td>{item.close_approach_data[0].relative_velocity.kilometers_per_second}</td>
                             <td>{item.close_approach_data[0].miss_distance.kilometers}</td>
                         </tr>
-                    ))}
+                    ))  }
                     </tbody>
                 </table>
                 </div>
 
             );
         }
-
     }
 }
 
