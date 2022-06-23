@@ -1,16 +1,9 @@
 import React from 'react';
+import axios from 'axios';
+
 
 class NeoComponent extends React.Component {
-        formatter() { 
-        var num = arguments.length; 
-        var oStr = arguments[0];   
-        for (var i = 1; i < num; i++) { 
-          var pattern = "\\{" + (i-1) + "\\}"; 
-          var re = new RegExp(pattern, "g"); 
-          oStr = oStr.replace(re, arguments[i]); 
-        } 
-        return oStr; 
-      } 
+
 
       paddingLeftZeros(datesubstring) {
         return  "0" + datesubstring; 
@@ -77,7 +70,6 @@ class NeoComponent extends React.Component {
       getTodayLocalTime(today) {
         var hourLocal = today.getHours().toString();
         var minLocal = today.getMinutes().toString();
-        var secLocal = today.getSeconds().toString();
 
         if(hourLocal.length === 1) {
             hourLocal = this.paddingLeftZeros(hourLocal);
@@ -143,8 +135,7 @@ class NeoComponent extends React.Component {
         this.api_key = process.env.REACT_APP_NASA_API_KEY; 
         this.start_date = this.getTodayUTCDate(new Date());
         this.end_date = this.start_date; 
-        this.url = this.formatter("https://api.nasa.gov/neo/rest/v1/feed?start_date={0}&end_date={1}&api_key={2}", this.start_date, this.end_date, this.api_key);
-
+     
         this.state = {
             error: null, 
             isLoaded: false, 
@@ -156,14 +147,20 @@ class NeoComponent extends React.Component {
     }
 
     componentDidMount() {
-        fetch(this.url)
-        .then(res => res.json())
+        const options = {
+            method: 'GET', 
+            url: 'http://localhost:3001/neo', 
+            params: {start_date: this.start_date, end_date: this.end_date}
+        }
+
+        axios.request(options)
         .then(
             (result) => {
+                console.log(result.data)
                 const todaydate = new Date(); 
                 this.setState({
                     isLoaded: true, 
-                    items: result.near_earth_objects[this.start_date], 
+                    items: result.data[this.start_date], 
                     currentLocalTime: this.getTodayLocalDateTime(todaydate), 
                     currentUTCTime: this.getTodayUTCDateTime(todaydate)
                 });
@@ -174,6 +171,9 @@ class NeoComponent extends React.Component {
                 error
             }); 
         }
+
+
+
         ) 
     }
 
@@ -185,23 +185,27 @@ class NeoComponent extends React.Component {
             return <div>Loading ... </div>;
         } else {
             return (
-                <div>
-                    <div id="time">
-                        <span>Local time: {this.state.currentLocalTime}</span>
-                        <span>UTC time: {this.state.currentUTCTime}</span>
+                <div id='bg'>
+                    <h1 className='center'>NEO (Asteroids)</h1>
+
+                    <div id="time" className='left'>
+                        <h3>Curent time</h3>   
+        
+                        <span className='left'><b>Local time:</b> {this.state.currentLocalTime}</span>
+                        <span className='left'><b>UTC time:</b> {this.state.currentUTCTime}</span>
                     </div>
                 <table>
                     <thead>
                         <tr>
                             <td>Name</td>
                             <td>Brightness (H)</td>
-                            <td>Estimated diameter minimum (Km)</td>
-                            <td>Estimated diameter maximum (km)</td>
-                            <td>Dangerous?</td>
-                            <td>Date of detection (UTC)</td>
-                            <td>Local Date</td>
-                            <td>How fast? (Km/s)</td>
-                            <td>How far from us? (Km)</td>
+                            <td>Estimated Diameter Minimum (Km)</td>
+                            <td>Estimated Diameter Maximum (km)</td>
+                            <td>Potentially Hazardous Asteroid?</td>
+                            <td>Date of Detection (UTC)</td>
+                            <td>Date of Detection (Local)</td>
+                            <td>How Fast? (Km/s)</td>
+                            <td>How Far From Us? (Km)</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -212,7 +216,7 @@ class NeoComponent extends React.Component {
                             <td>{item.absolute_magnitude_h}</td>
                             <td>{item.estimated_diameter.kilometers.estimated_diameter_min} </td>
                             <td>{item.estimated_diameter.kilometers.estimated_diameter_max}</td>
-                            <td>{item.is_potentially_hazardous_asteroid ? 'Yes': 'No'}</td>
+                            <td className={item.is_potentially_hazardous_asteroid ? 'Red' : 'Green'}>{item.is_potentially_hazardous_asteroid ? 'Yes': 'No'}</td>
                             <td>{this.parseDetectionDate(item.close_approach_data[0].close_approach_date_full, false)}</td>
                             <td>{this.parseDetectionDate(item.close_approach_data[0].close_approach_date_full, true)}</td>
                             <td>{item.close_approach_data[0].relative_velocity.kilometers_per_second}</td>

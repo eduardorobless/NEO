@@ -5,6 +5,24 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  padding:0; 
+  border:0;
+  height: 100%;
+}
+
+html {
+  height: 100% !important;
+}
+
+#root {
+  background: linear-gradient(rgba(255,255,255,.7), rgba(255,255,255,.7)), url("/nasalogo.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size:contain; 
+  height: 100%;
+  margin: 0;
+  padding: 0.5em; 
+  border:0;
 }
 
 code {
@@ -19,5 +37,37 @@ code {
 }
 
 #time {
+  margin-top: -20px;
   margin-bottom: 0.5em;
+  font-size: larger;
+}
+table thead tr td {
+  font-weight: bolder;
+}
+table tr td {
+  padding: 1em;
+  font-style: oblique ;
+}
+
+
+table {
+  height: 100% !important;
+  font-size: large;
+}
+
+.center {
+  text-align: center;
+} 
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+
+.Red {
+color: red;
+}
+.Green {
+color:green;
 }
