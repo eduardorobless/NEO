@@ -152,19 +152,18 @@ class NeoComponent extends React.Component {
             url: 'http://localhost:3001/neo', 
             params: {start_date: this.start_date, end_date: this.end_date}
         }
+        
 
         axios.request(options)
         .then(
             (result) => {
                 let res_order = [true, false]
                 let order = res_order.reduce((p, v, i) => Object.assign(p, {[v]: i} ),  {});
-                console.log(order);
-                result.data[this.start_date].sort((a, b) => order[a.is_potentially_hazardous_asteroid] - order[b.is_potentially_hazardous_asteroid]);
-                console.log(result.data[this.start_date])
+                result.data.sort((a, b) => order[a.is_potentially_hazardous_asteroid] - order[b.is_potentially_hazardous_asteroid]);
                 const todaydate = new Date(); 
                 this.setState({
                     isLoaded: true, 
-                    items: result.data[this.start_date], 
+                    items: result.data, 
                     currentLocalTime: this.getTodayLocalDateTime(todaydate), 
                     currentUTCTime: this.getTodayUTCDateTime(todaydate)
                 });
