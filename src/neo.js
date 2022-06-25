@@ -156,7 +156,11 @@ class NeoComponent extends React.Component {
         axios.request(options)
         .then(
             (result) => {
-                console.log(result.data)
+                let res_order = [true, false]
+                let order = res_order.reduce((p, v, i) => Object.assign(p, {[v]: i} ),  {});
+                console.log(order);
+                result.data[this.start_date].sort((a, b) => order[a.is_potentially_hazardous_asteroid] - order[b.is_potentially_hazardous_asteroid]);
+                console.log(result.data[this.start_date])
                 const todaydate = new Date(); 
                 this.setState({
                     isLoaded: true, 
