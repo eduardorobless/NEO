@@ -149,7 +149,7 @@ class NeoComponent extends React.Component {
     componentDidMount() {
         const options = {
             method: 'GET', 
-            url: 'http://localhost:3001/neo', 
+            url: 'https://neo-today.herokuapp.com/neo', 
             params: {start_date: this.start_date, end_date: this.end_date}
         }
         
